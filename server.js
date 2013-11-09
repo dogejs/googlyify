@@ -6,9 +6,14 @@ var connect = require('connect');
 var express = require('express');
 var mongoose = require("mongoose");
 var SessionMongoose = require("session-mongoose")(connect);
+
 var db = "mongodb://localhost/googlyify";
 var mongooseSessionStore = new SessionMongoose({url: db});
 mongoose.connect(db);
+
+// register models
+require("./models/sourcegif");
+require("./models/gif");
 
 var isProduction = (process.env.NODE_ENV === 'production');
 var port = (isProduction ? 80 : 8000);
@@ -41,10 +46,17 @@ app.configure(function () {
   app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 });
 
+app.get('/upload', require('./controllers/upload'));
+
 app.get('/', function(req, res) {
   var voteko = '<iframe src="http://nodeknockout.com/iframe/googlyify" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>';
   
   res.end('<html><body>' + voteko + '</body></html>\n');
+});
+
+app.use(express.static(__dirname+"/public"));
+app.use(function (req, res) {
+  res.render("404");
 });
 
 app.listen(port);
