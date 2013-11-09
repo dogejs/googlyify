@@ -49,10 +49,11 @@ editor.render = new ko.computed(function () {
   }
   
   var points = [];
+  var s = 24;
+  addCirclePoints(points, gap, 0, r, s);
+  addCirclePoints(points, -gap, 0, r, s);
   
-  addCirclePoints(points, gap, 0, r, 16);
-  addCirclePoints(points, -gap, 0, r, 16);
-  
+  // rotate about the z axis
   points = _.map(points, function (point) {
     var _a = Math.atan2(point.y, point.x) + rz/180*Math.PI;
     var _r = Math.sqrt(Math.pow(point.x,2) + Math.pow(point.y,2));
@@ -62,6 +63,7 @@ editor.render = new ko.computed(function () {
     return {x:_x, y:_y, z:_z};
   });
   
+  // rotate about the y axis
   points = _.map(points, function (point) {
     var _a = Math.atan2(point.z, point.x) + ry/180*Math.PI;
     var _r = Math.sqrt(Math.pow(point.x,2) + Math.pow(point.z,2));
@@ -70,6 +72,17 @@ editor.render = new ko.computed(function () {
     var _z = Math.sin(_a)*_r;
     return {x:_x, y:_y, z:_z};
   });
+  
+  // rotate about the x axis
+  points = _.map(points, function (point) {
+    var _a = Math.atan2(point.y, point.z) + rx/180*Math.PI;
+    var _r = Math.sqrt(Math.pow(point.z,2) + Math.pow(point.y,2));
+    var _x = point.x;
+    var _y = Math.sin(_a)*_r;
+    var _z = Math.cos(_a)*_r;
+    return {x:_x, y:_y, z:_z};
+  });
+  
   
   var cx = x;
   var cy = y;
@@ -101,7 +114,7 @@ editor.render = new ko.computed(function () {
 
 // events
 editor.selectFrame = function (frame) {
-  editor.currentFrameId(frame.id);
+  editor.currentFrameId(frame.id());
 }
 
 editor.makeKeyframe = function () {
