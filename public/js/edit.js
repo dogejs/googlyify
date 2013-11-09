@@ -27,17 +27,18 @@ editor.render = new ko.computed(function () {
     var ry = editor.currentFrame().ry();
     var rz = editor.currentFrame().rz();
   }
-  console.log("render "+(editor.currentFrame() ? editor.currentFrame().x() : "x"));
   if (!editor.currentFrame()) return;
   var f = editor.currentFrame();
-  if (!canvas || !ctx) return console.log("no canvas");;
+  if (!canvas || !ctx) return;
   ctx.clearRect(0, 0, editor.width(), editor.height());
   
   //ctx.drawImage(editor.currentFrame().img, 0, 0, editor.width(), editor.height());
-  if (!editor.currentFrame().visible()) return console.log("invisible!");
+  if (!editor.currentFrame().visible()) return;
   
   
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.lineWidth = 4;
   
   var addCirclePoints = function (pts, cx, cy, rad, steps) {
     if (steps > 2) {
@@ -101,6 +102,8 @@ editor.render = new ko.computed(function () {
   });
   ctx.closePath();
   ctx.fill();
+  ctx.stroke();
+  
   ctx.beginPath();
   ctx.moveTo(eye2[0].x, eye2[0].y);
   _.each(eye2, function (point) {
@@ -108,6 +111,7 @@ editor.render = new ko.computed(function () {
   });
   ctx.closePath();
   ctx.fill();
+  ctx.stroke();
   //ctx.fillRect(0, 0, 100, 100);
 });
 
@@ -125,10 +129,21 @@ editor.addEyes = function (context, event) {
   event.originalEvent.preventDefault();
   if (editor.currentFrame()) {
     if (!editor.currentFrame().visible()) {
-      console.log("make visible");
       editor.currentFrame().visible(true);
+      if (editor.currentFrameId() > 0) {
+        var prev = editor.frames()[editor.currentFrameId()-1];
+        if (prev.visible()) {
+          editor.currentFrame().x(prev.x());
+          editor.currentFrame().y(prev.y());
+          editor.currentFrame().size(prev.size());
+          editor.currentFrame().gap(prev.gap());
+          editor.currentFrame().rx(prev.rx());
+          editor.currentFrame().ry(prev.ry());
+          editor.currentFrame().rz(prev.rz());
+          return false;
+        }
+      }
     }
-    console.log("Setting new x and y");
     editor.currentFrame().x(event.offsetX/editor.width());
     editor.currentFrame().y(event.offsetY/editor.height());
   }
@@ -189,7 +204,6 @@ function setupGif (gif) {
   editor.width(Math.round(w));
   editor.height(Math.round(h));
   
-  console.log("Setting up canvas");
   canvas = $(".editor-canvas");
   canvas.css({width:w, height:h});
   canvas.attr({width:w, height:h});
