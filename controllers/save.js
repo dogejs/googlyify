@@ -14,8 +14,7 @@ module.exports = function (req, res) {
     if (!req.body.frames) return res.render(500);
     
     var props = ["x", "y", "keyframe", "visible", "size", "gap", "rx", "ry", "rz"];
-    console.log(req.body);
-    var oldFrames = [];
+    var oldFrames = []; // clear gif.frames and use .push() to repopulate and trigger mongoose save
     _.each(gif.frames, function (frame) { oldFrames.push(frame); });
     gif.frames = [];
     _.each(oldFrames, function (frame, k) {
