@@ -10,16 +10,17 @@ module.exports = function (req, res) {
     return res.render(500);
   }
   SourceGif.getOrCreate(url, function (err, src) {
-    if (err) return res.render(500);
+    if (err) {
+      console.error(err);
+      return res.render(500);
+    }
     
     Gif.fromSource(src, function (err, gif) {
       if (err) {
         console.error(err);
         return res.render(500);
       }
-      gif.id = gif._id;
-      gif.mykey = gif.key;
-      res.send({gif: gif});
+      res.redirect("/edit/"+gif._id+"/"+gif.key);
     });
   });
 }

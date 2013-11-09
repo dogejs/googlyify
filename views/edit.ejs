@@ -1,0 +1,44 @@
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="/js/lodash.min.js"></script>
+<script src="/js/knockout.min.js"></script>
+<script src="/js/keymaster.min.js"></script>
+<script src="/js/edit.js"></script>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="editor" class="editor">
+  Frames: <%= gif.frames.length %><br />
+  <div class="timeline" data-bind="foreach: frames">
+    <div class="frame" data-bind="css: {selected: selected}">
+      <img src="" style="height: 3em;" data-bind="click: $parent.selectFrame, attr: {src: url}" />
+    </div>
+  </div>
+  
+  <div style="clear: both;"></div>
+  
+  <h2>Editor</h2>
+  <div class="canvas-holder" data-bind="style: {width: width, height: height}">
+    <img data-bind="attr: {src: img}, style: {width: width, height: height}" style="opacity: 0.5;" />
+    <canvas class="editor-canvas" data-bind="style: {width: width, height: height, 'margin-top': -height()}, event: {dblclick: addEyes}"></canvas>
+  </div>
+  
+  <div data-bind="">
+    make keyframe? <button data-bind="click: makeKeyframe">make keyframe</button>
+  </div>
+  <div data-bind="with: currentFrame">
+    <p>Size: <input class="gap" type="range" min="0.01" max="0.4" step="0.01" data-bind="value: size" /> <span class="show-size" data-bind="text: size"></span></p>
+    <p>Gap: <input class="gap" type="range" min="1" max="5" step="0.1" data-bind="value: gap" /> <span class="show-gap" data-bind="text: gap"></span></p>
+    <p>Rotate Z: <input class="rz" type="range" min="-180" max="180" step="10" data-bind="value: rz" /> <span class="show-rz" data-bind="text: rz"></span></p>
+    <p>Rotate Y: <input class="ry" type="range" min="-180" max="180" step="10" data-bind="value: ry" /> <span class="show-ry" data-bind="text: ry"></span></p>
+    <p>Rotate X: <input class="rx" type="range" min="-180" max="180" step="10" data-bind="value: rx" /> <span class="show-rx" data-bind="text: rx"></span></p>
+  </div>
+</div>
+<script>
+setupGif(<%- JSON.stringify(gif) %>);
+</script>
+
+</body>
+</html>

@@ -14,6 +14,9 @@ var Gif = new mongoose.Schema({
     type: String,
     required: true
   },
+  width: Number,
+  height: Number,
+  delay: Number,
   frames: [{
   }],
   created_at: {
@@ -35,8 +38,8 @@ Gif.statics.fromSource = function (src, next) {
       y: 0,
       x2: 0,
       y2: 0,
-      r: src.width*0.06,
-      gap: 1, // multiple of radius between eye1.cx & eye2.cx
+      size: 0.06, // radius as fraction of src width
+      gap: 1, // multiple of size between eye1.cx & eye2.cx
       rx: 0,
       ry: 0,
       rz: 0
@@ -46,7 +49,10 @@ Gif.statics.fromSource = function (src, next) {
   var gif = new G({
     url: src.url,
     frames: frames,
-    key: crypto.createHash("md5").digest("hex").substring(0, 10)
+    width: src.width,
+    height: src.height,
+    delay: src.delay,
+    key: crypto.createHash("md5").update(Math.random().toString()).digest("hex").substring(0, 10)
   });
   
   gif.save(function (err) {

@@ -1,0 +1,21 @@
+html, body {
+  margin: 0;
+}
+
+img {
+  border: none;
+}
+
+.timeline .frame {
+  float: left;
+  border: solid 2px #fff;
+}
+
+.timeline .selected.frame {
+  border: solid 2px #0f0;
+}
+
+.editor-canvas {
+  position: absolute;
+  border: solid 1px #0f0;
+}

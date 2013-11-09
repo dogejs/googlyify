@@ -47,6 +47,7 @@ app.configure(function () {
 });
 
 app.get('/upload', require('./controllers/upload'));
+app.get('/edit/:id/:key', require('./controllers/edit'));
 
 app.get('/', function(req, res) {
   var voteko = '<iframe src="http://nodeknockout.com/iframe/googlyify" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>';

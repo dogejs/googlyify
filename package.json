@@ -23,7 +23,8 @@
     "session-mongoose": "~0.3.2",
     "ejs": "~0.8.4",
     "request": "~2.27.0",
-    "mongoose-shortid": "~0.4.1"
+    "mongoose-shortid": "~0.4.1",
+    "knox": "~0.8.6"
   },
   "engines": {
     "node": "0.10.x"
