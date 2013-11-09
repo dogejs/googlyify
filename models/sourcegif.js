@@ -81,7 +81,9 @@ SourceGif.statics.getOrCreate = function (url, next) {
                       if (err) return done(err);
                       res.resume();
                       res.on("end", function () {
-                        done();
+                        fs.rmdir(path, function (err) {
+                          done();
+                        });
                       });
                     });
                   }, function (err) {
