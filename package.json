@@ -11,7 +11,16 @@
     "url": "git@github.com:nko4/googlyify.git"
   },
   "dependencies": {
-    "nko": "*"
+    "nko": "*",
+    "async": "~0.2.9",
+    "lodash": "~2.2.1",
+    "optimist": "~0.6.0",
+    "gm": "~1.13.3",
+    "canvas": "~1.1.2",
+    "connect": "~2.11.0",
+    "express": "~3.4.4",
+    "mongoose": "~3.8.0",
+    "session-mongoose": "~0.3.2"
   },
   "engines": {
     "node": "0.10.x"
