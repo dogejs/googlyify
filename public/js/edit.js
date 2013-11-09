@@ -20,15 +20,19 @@ var canvas, ctx; // set up on dom ready below
 
 editor.render = new ko.computed(function () {
   if (editor.currentFrame()) {
-    var x = editor.currentFrame().x()*editor.width();
-    var y = editor.currentFrame().y()*editor.height();
-    var r = editor.currentFrame().size()*editor.width();
-    var gap = editor.currentFrame().gap()*r;
-    var rx = editor.currentFrame().rx();
-    var ry = editor.currentFrame().ry();
-    var rz = editor.currentFrame().rz();
+    var frame = {
+      x: editor.currentFrame().x()*editor.width(),
+      y: editor.currentFrame().y()*editor.height(),
+      size: editor.currentFrame().size()*editor.width(),
+      gap: editor.currentFrame().gap() * editor.currentFrame().size() * editor.width(),
+      rx: editor.currentFrame().rx(),
+      ry: editor.currentFrame().ry(),
+      rz: editor.currentFrame().rz()
+    }
+  } else {
+    return;
   }
-  if (!editor.currentFrame()) return;
+  
   var f = editor.currentFrame();
   if (!editor.canvasReady()) return;
   ctx.clearRect(0, 0, editor.width(), editor.height());
@@ -36,84 +40,19 @@ editor.render = new ko.computed(function () {
   //ctx.drawImage(editor.currentFrame().img, 0, 0, editor.width(), editor.height());
   if (!editor.currentFrame().visible()) return;
   
-  
-  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-  ctx.lineWidth = 4;
-  
-  var addCirclePoints = function (pts, cx, cy, rad, steps) {
-    if (steps > 2) {
-      for (i=0; i<360; i+=360/steps) {
-        var ang = i/180*Math.PI;
-        pts.push({x: cx+Math.cos(ang)*rad, y: cy+Math.sin(ang)*rad, z: rad});
-      }
-    }
-  }
-  
-  var points = [];
-  var s = 24;
-  addCirclePoints(points, gap, 0, r, s);
-  addCirclePoints(points, -gap, 0, r, s);
-  
-  // rotate about the z axis
-  points = _.map(points, function (point) {
-    var _a = Math.atan2(point.y, point.x) + rz/180*Math.PI;
-    var _r = Math.sqrt(Math.pow(point.x,2) + Math.pow(point.y,2));
-    var _x = Math.cos(_a)*_r;
-    var _y = Math.sin(_a)*_r;
-    var _z = point.z;
-    return {x:_x, y:_y, z:_z};
-  });
-  
-  // rotate about the y axis
-  points = _.map(points, function (point) {
-    var _a = Math.atan2(point.z, point.x) + ry/180*Math.PI;
-    var _r = Math.sqrt(Math.pow(point.x,2) + Math.pow(point.z,2));
-    var _x = Math.cos(_a)*_r;
-    var _y = point.y;
-    var _z = Math.sin(_a)*_r;
-    return {x:_x, y:_y, z:_z};
-  });
-  
-  // rotate about the x axis
-  points = _.map(points, function (point) {
-    var _a = Math.atan2(point.y, point.z) + rx/180*Math.PI;
-    var _r = Math.sqrt(Math.pow(point.z,2) + Math.pow(point.y,2));
-    var _x = point.x;
-    var _y = Math.sin(_a)*_r;
-    var _z = Math.cos(_a)*_r;
-    return {x:_x, y:_y, z:_z};
-  });
-  
-  
-  var cx = x;
-  var cy = y;
-  
-  points = _.map(points, function (point) {
-    return {x:cx+point.x, y:cy+point.y};
-  });
-  
-  eye1 = points.splice(0, points.length/2);
-  eye2 = points;
-  
-  ctx.beginPath();
-  ctx.moveTo(eye1[0].x, eye1[0].y);
-  _.each(eye1, function (point) {
-    ctx.lineTo(point.x, point.y);
-  });
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  
-  ctx.beginPath();
-  ctx.moveTo(eye2[0].x, eye2[0].y);
-  _.each(eye2, function (point) {
-    ctx.lineTo(point.x, point.y);
-  });
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  //ctx.fillRect(0, 0, 100, 100);
+  opts = {
+    //fillStyle: "rgba(255, 255, 255, 0.5)",
+    //strokeStyle: "rgba(255, 255, 255, 0.8)"
+    fillStyle: "#fff",
+    strokeStyle: "none"
+  };
+  googly.drawEyes(ctx, frame, opts);
+  opts = {
+    fillStyle: "#000",
+    strokeStyle: "none",
+    size: frame.size*0.4
+  };
+  googly.drawEyes(ctx, frame, opts);
 });
 
 

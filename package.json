@@ -24,7 +24,8 @@
     "ejs": "~0.8.4",
     "request": "~2.27.0",
     "mongoose-shortid": "~0.4.1",
-    "knox": "~0.8.6"
+    "knox": "~0.8.6",
+    "box2dweb": "~2.1.0b"
   },
   "engines": {
     "node": "0.10.x"

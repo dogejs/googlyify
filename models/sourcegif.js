@@ -37,7 +37,7 @@ var SourceGif = new mongoose.Schema({
 
 SourceGif.statics.getOrCreate = function (url, next) {
   SG = mongoose.model("SourceGif");
-  SG.findOne({url: url}, function (err, gif) {
+  SG.findOne({url: url, frames: {"$exists": true}}, function (err, gif) {
     if (err) return next(err);
     if (gif) {
       next(null, gif);
@@ -66,7 +66,7 @@ SourceGif.statics.getOrCreate = function (url, next) {
               gif.width = data.size.width;
               gif.height = data.size.height;
               gif.delay = data.Delay;
-              exec("gm convert "+gif.path+" +adjoin "+path+"/frame-%03d.jpg", function (err, data) {
+              exec("gm convert "+gif.path+" -coalesce +adjoin "+path+"/frame-%03d.jpg", function (err, data) {
                 if (err) return next(err);
                 
                 fs.readdir(path, function (err, files) {
@@ -76,7 +76,7 @@ SourceGif.statics.getOrCreate = function (url, next) {
                       gif.frames.push(gif._id+"/"+file);
                     }
                   });
-                  async.each(gif.frames, function (frame, done) {
+                  async.eachSeries(gif.frames, function (frame, done) {
                     s3.putFile(dir+"/"+frame, frame, {"x-amz-acl": "public-read"}, function (err, res) {
                       if (err) return done(err);
                       res.resume();

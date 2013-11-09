@@ -14,6 +14,8 @@ module.exports = function (req, res) {
     if (!req.body.frames) return res.render(500);
     
     var props = ["x", "y", "keyframe", "visible", "size", "gap", "rx", "ry", "rz"];
+    var floats = ["x", "y", "size", "gap", "rx", "ry", "rz"];
+    var booleans = ["keyframe", "visible"];
     var oldFrames = []; // clear gif.frames and use .push() to repopulate and trigger mongoose save
     _.each(gif.frames, function (frame) { oldFrames.push(frame); });
     gif.frames = [];
@@ -22,8 +24,11 @@ module.exports = function (req, res) {
         inputFrame = req.body.frames[k];
         _.each(props, function (prop) {
           if (typeof inputFrame[prop] != "undefined") {
-            if (oldFrames[k][prop] != inputFrame[prop]) {
-              console.log("Updating frame "+k+"["+prop+"] to "+inputFrame[prop]);
+            if (floats.indexOf(prop) != -1) {
+              inputFrame[prop] = parseFloat(inputFrame[prop]);
+            }
+            if (booleans.indexOf(prop) != -1) {
+              inputFrame[prop] = inputFrame[prop] == true || inputFrame[prop] == "true" ? true : false;
             }
             oldFrames[k][prop] = inputFrame[prop];
           }
