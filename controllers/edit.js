@@ -10,6 +10,6 @@ module.exports = function (req, res) {
   Gif.findOne({_id: id, key: key}, function (err, gif) {
     if (err) return res.render(500);
     if (!gif) return res.render(404);
-    res.render("edit", {gif: gif});
+    res.render("edit", {gif: gif, _id: id, _key: key});
   });
 }

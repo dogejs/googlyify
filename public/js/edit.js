@@ -1,4 +1,5 @@
 var editor = {
+  canvasReady: new ko.observable(false),
   frames: new ko.observableArray([]),
   currentFrameId: new ko.observable(0),
   width: new ko.observable(1),
@@ -29,7 +30,7 @@ editor.render = new ko.computed(function () {
   }
   if (!editor.currentFrame()) return;
   var f = editor.currentFrame();
-  if (!canvas || !ctx) return;
+  if (!editor.canvasReady()) return;
   ctx.clearRect(0, 0, editor.width(), editor.height());
   
   //ctx.drawImage(editor.currentFrame().img, 0, 0, editor.width(), editor.height());
@@ -150,6 +151,29 @@ editor.addEyes = function (context, event) {
   return false;
 }
 
+editor.save = function () {
+  var outputFrames = []
+  ko.utils.arrayForEach(editor.frames(), function (frame) {
+    outputFrames.push({
+      x: frame.x(),
+      y: frame.y(),
+      size: frame.size(),
+      gap: frame.gap(),
+      rx: frame.rx(),
+      ry: frame.ry(),
+      rz: frame.rz(),
+      keyframe: frame.keyframe(),
+      visible: frame.visible()
+    });
+  });
+  var gif = {};
+  gif.frames = outputFrames;
+  $.post("/save/"+_id+"/"+_key+".json", gif, function (data) {
+    console.log(data);
+  }, "json");
+  console.log(JSON.stringify(gif, null, 2));
+}
+
 var Frame = function (f) {
   this.keyframe = ko.observable(f.keyframe);
   this.visible = ko.observable(f.visible);
@@ -209,17 +233,32 @@ function setupGif (gif) {
   canvas.attr({width:w, height:h});
   canvas[0].onselectstart = function () { return false; } // prevent highlight on double click
   
+  var startX = 0;
+  var startY = 0;
+  var startMouseX = 0;
+  var startMouseY = 0;
   canvas.mousedown(function (event) {
-    canvas.bind("mousemove", function (event) {
-      editor.currentFrame().x(event.offsetX/editor.width());
-      editor.currentFrame().y(event.offsetY/editor.height());
+    event.preventDefault();
+    startMouseX = event.pageX - canvas.offset().left;
+    startMouseY = event.pageY - canvas.offset().top;
+    startX = editor.currentFrame().x()*editor.width();
+    startY = editor.currentFrame().y()*editor.height();
+    $(window).bind("mousemove", function (event) {
+      event.preventDefault();
+      var _x = startX + (event.pageX - canvas.offset().left - startMouseX);
+      var _y = startY + (event.pageY - canvas.offset().top - startMouseY);
+      editor.currentFrame().x(_x/editor.width());
+      editor.currentFrame().y(_y/editor.height());
+      return false;
     });
+    return false;
   });
   canvas.mouseup(function () {
-    canvas.unbind("mousemove");
+    $(window).unbind("mousemove");
   });
   
   ctx = canvas[0].getContext("2d");
+  editor.canvasReady(true);
   ko.applyBindings(editor, $("#editor")[0]);
 }
 
@@ -232,10 +271,18 @@ key("left", function () {
 });
 
 key("right", function () {
-  if (editor.currentFrameId() >= editor.frames().length-2) {
+  if (editor.currentFrameId() >= editor.frames().length-1) {
     editor.currentFrameId(0);
   } else {
     editor.currentFrameId(editor.currentFrameId()+1);
+  }
+});
+
+key("backspace", function (event) {
+  if (editor.currentFrame() && editor.currentFrame().visible()) {
+    editor.currentFrame().visible(false);
+    event.preventDefault();
+    return false;
   }
 });
 

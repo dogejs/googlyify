@@ -29,14 +29,17 @@
     make keyframe? <button data-bind="click: makeKeyframe">make keyframe</button>
   </div>
   <div data-bind="with: currentFrame">
-    <p>Size: <input class="gap" type="range" min="0.01" max="0.4" step="0.01" data-bind="value: size" /> <span class="show-size" data-bind="text: size"></span></p>
-    <p>Gap: <input class="gap" type="range" min="1" max="5" step="0.05" data-bind="value: gap" /> <span class="show-gap" data-bind="text: gap"></span></p>
+    <p>Size: <input class="gap" type="range" min="0.01" max="0.4" step="0.005" data-bind="value: size" /> <span class="show-size" data-bind="text: size"></span></p>
+    <p>Gap: <input class="gap" type="range" min="1" max="5" step="0.01" data-bind="value: gap" /> <span class="show-gap" data-bind="text: gap"></span></p>
     <p>Rotate Z: <input class="rz" type="range" min="-90" max="90" step="5" data-bind="value: rz" /> <span class="show-rz" data-bind="text: rz"></span></p>
     <p>Rotate Y: <input class="ry" type="range" min="-90" max="90" step="5" data-bind="value: ry" /> <span class="show-ry" data-bind="text: ry"></span></p>
     <p>Rotate X: <input class="rx" type="range" min="-90" max="90" step="5" data-bind="value: rx" /> <span class="show-rx" data-bind="text: rx"></span></p>
   </div>
+  <button data-bind="click: save">save</button>
 </div>
 <script>
+var _id = "<%= _id %>";
+var _key = "<%= _key %>";
 setupGif(<%- JSON.stringify(gif) %>);
 </script>
 
