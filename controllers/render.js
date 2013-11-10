@@ -20,7 +20,7 @@ var s3 = knox.createClient({
 
 var Gif = mongoose.model("Gif");
 
-var dir = "public/uploads";
+var dir = __dirname.replace("/models", "") + "/public/uploads";
 
 var Render = {};
 
