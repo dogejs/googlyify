@@ -7,6 +7,6 @@
   </div>
   <div>
     <div class="fui-eye">&nbsp;<%= gif.views %> view<%= (gif.views == 1 ? "" : "s") %></div><br />
-    <button class="btn btn-danger fui-heart">&nbsp;&nbsp;<%= gif.likes %> like<%= (gif.likes == 1 ? "" : "s") %></button>
+    <button class="btn btn-danger fui-heart like-button" data-id="<%= _id %>">&nbsp;&nbsp;<span class="like-count"><%= gif.likes %></span> like<%= (gif.likes == 1 ? "" : "s") %></button>
   </div>
 </div>

@@ -1,6 +1,19 @@
+var liked = false;
 
 $(document).ready(function () {
-  
+  $(".like-button").click(function (event) {
+    var span = $(".like-count");
+    var cnt = parseInt(span.html());
+    cnt++;
+    span.html(cnt);
+    $(".like-button").removeClass("btn-danger").addClass("btn-disabled").attr({disabled: "true"});
+    if (!liked) {
+      liked = true;
+      $.getJSON("/like/"+$(this).attr("data-id")+".json", function (data) {
+        console.log(data);
+      });
+    }
+  });
 });
 
 
