@@ -12,6 +12,56 @@ editor.currentFrame = ko.dependentObservable(function () {
   return editor.frames().length > 0 ? editor.frames()[editor.currentFrameId()] : null;
 });
 
+editor.previousKeyframeId = ko.dependentObservable(function () {
+  for (var i = editor.currentFrameId()-1; i >= 0; i--) {
+    if (!editor.frames()[i].visible()) {
+      return null;
+    } else
+    if (editor.frames()[i].keyframe()) {
+      return i;
+    }
+  }
+  return null;
+});
+
+editor.nextKeyframeId = ko.dependentObservable(function () {
+  var currentFrame = editor.currentFrame();
+  if (editor.currentFrame()) {
+    var currentFrameVisible = editor.currentFrame().visible();
+  }
+  for (var i = editor.currentFrameId()+1; i < editor.frames().length; i++) {
+    if (!editor.frames()[i].visible()) {
+      return null;
+    } else
+    if (editor.frames()[i].keyframe()) {
+      return i;
+    }
+  }
+  return null;
+});
+
+editor.canBeTweened = ko.dependentObservable(function () {
+  var i;
+  var frameNumber = editor.currentFrameId()
+  var prevId = null;
+  for (i = frameNumber-1; i >= 0 && !prevId; i--) {
+    if (editor.frames()[i].keyframe()) {
+      prevId = i;
+    }
+  }
+  var nextId = null;
+  for (i = frameNumber+1; i < editor.frames().length && !nextId; i++) {
+    if (editor.frames()[i].keyframe()) {
+      nextId = i;
+    }
+  }
+  if (prevId != null && nextId != null && nextId > prevId) {
+    return true;
+  } else {
+    return false;
+  }
+});
+
 editor.img = new ko.computed(function () {
   return editor.currentFrame() ? editor.currentFrame().url() : "";
 });
@@ -28,6 +78,20 @@ editor.render = new ko.computed(function () {
       rx: editor.currentFrame().rx(),
       ry: editor.currentFrame().ry(),
       rz: editor.currentFrame().rz()
+    };
+    if (editor.currentFrame().keyframe()) {
+      if (editor.currentFrameId() > 0) {
+        var prevFrame = editor.frames()[editor.currentFrameId()-1];
+        if (prevFrame.visible() && !prevFrame.keyframe()) {
+          editor.makeTween(prevFrame.id());
+        }
+      }
+      if (editor.currentFrameId() < editor.frames().length-1) {
+        var nextFrame = editor.frames()[editor.currentFrameId()+1];
+        if (nextFrame.visible() && !nextFrame.keyframe()) {
+          editor.makeTween(nextFrame.id());
+        }
+      }
     }
   } else {
     return;
@@ -61,33 +125,150 @@ editor.selectFrame = function (frame) {
   editor.currentFrameId(frame.id());
 }
 
-editor.makeKeyframe = function () {
-  editor.currentFrame().keyframe = true;
+editor.makeMeAKeyframe = function (frame, defaultX, defaultY) {
+  console.log("makeMeAKeyframe", frame, defaultX, defaultY);
+  if (typeof defaultX != "number") {
+    defaultX = 0.5;
+  }
+  if (typeof defaultY != "number") {
+    defaultY = 0.5;
+  }
+  frame.keyframe(true);
+  if (!frame.visible()) {
+    frame.visible(true);
+    if (typeof editor.previousKeyframeId() == "number" && typeof editor.nextKeyframeId() == "number") {
+      console.log("Recalculate tween frames", editor.previousKeyframeId(), editor.nextKeyframeId());
+      editor.recalculateTweenFrames(editor.previousKeyframeId(), editor.nextKeyframeId());
+      return;
+    } else
+    if (typeof editor.previousKeyframeId() == "number") {
+      console.log("copy from previous keyframe ", editor.previousKeyframeId());
+      frame.keyframe(true);
+      var prev = editor.frames()[editor.previousKeyframeId()];
+      frame.x(prev.x());
+      frame.y(prev.y());
+      frame.size(prev.size());
+      frame.gap(prev.gap());
+      frame.rx(prev.rx());
+      frame.ry(prev.ry());
+      frame.rz(prev.rz());
+      return;
+    }
+  }
+  var found = false;
+  for (var i = frame.id()-1; i>=0 && !found; i--) {
+    if (editor.frames()[i].keyframe()) {
+      frame.gap(editor.frames()[i].gap());
+      frame.size(editor.frames()[i].size());
+    }
+  }
+  frame.x(defaultX);
+  frame.y(defaultY);
+}
+
+editor.makeMeATween = function (frame) {
+  if (frame.keyframe()) {
+    frame.keyframe(false);
+  }
+  editor.makeTween(frame.id());
+}
+
+editor.makeMeNotATween = function (frame) {
+  editor.removeTween(frame.id());
+}
+
+editor.deleteFrame = function (frame) {
+  if (frame.keyframe()) {
+    if (editor.currentFrameId() > 0) {
+      var prevFrame = editor.frames()[editor.currentFrameId()-1];
+      if (prevFrame.visible() && !prevFrame.keyframe()) {
+        editor.removeTween(prevFrame.id());
+      }
+    }
+    if (editor.currentFrameId() < editor.frames().length-1) {
+      var nextFrame = editor.frames()[editor.currentFrameId()+1];
+      if (nextFrame.visible() && !nextFrame.keyframe()) {
+        editor.removeTween(nextFrame.id());
+      }
+    }
+  } else {
+    editor.removeTween(editor.currentFrameId());
+  }
+  frame.visible(false);
+  frame.keyframe(false);
 }
 
 editor.addEyes = function (context, event) {
   event.originalEvent.preventDefault();
-  if (editor.currentFrame()) {
-    if (!editor.currentFrame().visible()) {
-      editor.currentFrame().visible(true);
-      if (editor.currentFrameId() > 0) {
-        var prev = editor.frames()[editor.currentFrameId()-1];
-        if (prev.visible()) {
-          editor.currentFrame().x(prev.x());
-          editor.currentFrame().y(prev.y());
-          editor.currentFrame().size(prev.size());
-          editor.currentFrame().gap(prev.gap());
-          editor.currentFrame().rx(prev.rx());
-          editor.currentFrame().ry(prev.ry());
-          editor.currentFrame().rz(prev.rz());
-          return false;
-        }
-      }
-    }
-    editor.currentFrame().x(event.offsetX/editor.width());
-    editor.currentFrame().y(event.offsetY/editor.height());
+  var frame = editor.currentFrame();
+  if (frame) {
+    editor.makeMeAKeyframe(frame, event.offsetX/editor.width(), event.offsetY/editor.height());
   }
   return false;
+}
+
+editor.makeTween = function (frameNumber) {
+  var i;
+  var frameNumber = parseInt(frameNumber);
+  var prevId = null;
+  for (i = frameNumber-1; i >= 0 && !prevId; i--) {
+    if (editor.frames()[i].keyframe()) {
+      prevId = i;
+    }
+  }
+  var nextId = null;
+  for (i = frameNumber+1; i < editor.frames().length && !nextId; i++) {
+    if (editor.frames()[i].keyframe()) {
+      nextId = i;
+    }
+  }
+  if (prevId != null && nextId != null && nextId > prevId) {
+    for (i=prevId+1; i<nextId; i++) {
+      editor.frames()[i].visible(true);
+    }
+    editor.recalculateTweenFrames(prevId, nextId);
+  }
+}
+
+editor.removeTween = function (frameNumber) {
+  var i;
+  var frameNumber = parseInt(frameNumber);
+  var prevId = null;
+  for (i = frameNumber-1; i >= 0 && !prevId; i--) {
+    if (editor.frames()[i].keyframe()) {
+      prevId = i;
+    }
+  }
+  var nextId = null;
+  for (i = frameNumber+1; i < editor.frames().length && !nextId; i++) {
+    if (editor.frames()[i].keyframe()) {
+      nextId = i;
+    }
+  }
+  if (prevId != null && nextId != null && nextId > prevId) {
+    for (i=prevId+1; i<nextId; i++) {
+      editor.frames()[i].visible(false);
+    }
+  }
+}
+
+editor.recalculateTweenFrames = function (frameNumber1, frameNumber2) {
+  console.log("recalculating tween from "+frameNumber1+" to "+frameNumber2);
+  var frame1 = editor.frames()[frameNumber1];
+  var frame2 = editor.frames()[frameNumber2];
+  var steps = frameNumber2-frameNumber1;
+  var props = ["x", "y", "size", "gap", "rx", "ry", "rz"];
+  for (var i=1; i<steps; i++) {
+    var f = editor.frames()[frameNumber1+i];
+    var p = i/steps;
+    if (!f) { console.log("invalid frame?", f, frameNumber1, i); }
+    f.visible(true);
+    _.each(props, function (prop) {
+      var v1 = parseFloat(frame1[prop]());
+      var v2 = parseFloat(frame2[prop]());
+      f[prop](v1 + (v2-v1) * p);
+    });
+  }
 }
 
 editor.save = function () {
@@ -177,6 +358,7 @@ function setupGif (gif) {
   var startMouseX = 0;
   var startMouseY = 0;
   canvas.mousedown(function (event) {
+    if (!editor.currentFrame().keyframe()) { return; }
     event.preventDefault();
     startMouseX = event.pageX - canvas.offset().left;
     startMouseY = event.pageY - canvas.offset().top;
@@ -219,12 +401,33 @@ key("right", function () {
 
 key("backspace", function (event) {
   if (editor.currentFrame() && editor.currentFrame().visible()) {
-    editor.currentFrame().visible(false);
+    editor.deleteFrame(editor.currentFrame());
     event.preventDefault();
     return false;
   }
 });
 
+key("t", function () {
+  if (editor.currentFrame() && !editor.currentFrame().keyframe()) {
+    if (editor.canBeTweened()) {
+      if (editor.currentFrame().visible()) {
+        editor.makeMeNotATween(editor.currentFrame());
+      } else {
+        editor.makeMeATween(editor.currentFrame());
+      }
+    }
+  }
+});
+
+key("k", function () {
+  if (editor.currentFrame()) {
+    if (editor.currentFrame().keyframe()) {
+      editor.deleteFrame(editor.currentFrame());
+    } else {
+      editor.makeMeAKeyframe(editor.currentFrame());
+    }
+  }
+});
 
 
 function drawEllipseByCenter(ctx, cx, cy, w, h) {

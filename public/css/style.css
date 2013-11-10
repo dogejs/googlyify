@@ -11,7 +11,7 @@ img {
   border: solid 2px #fff;
 }
 
-.timeline .selected.frame {
+.timeline .frame.selected {
   border: solid 2px #0f0;
 }
 
@@ -19,3 +19,17 @@ img {
   position: absolute;
   border: solid 1px #0f0;
 }
+
+.timeline .frame.keyframe {
+  border-bottom: solid 2px #f00;
+}
+
+.timeline .frame.tween {
+  border-bottom: solid 2px #0f0;
+}
+.timeline .frame.tween img {
+  opacity: 0.5;
+}
+
+
+
