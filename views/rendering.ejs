@@ -87,7 +87,7 @@ socket.on("complete", function (data) {
   showStatusMessage("<strong>Complete!</strong>", null, "complete");
   $(".status-progress").removeClass("progress-bar-info").addClass("progress-bar-success");
   setTimeout(function () {
-    //window.location = data.redirect;
+    window.location = data.redirect;
   }, 1000);
 });
 socket.on("error", function (err) {
