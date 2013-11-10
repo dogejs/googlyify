@@ -19,6 +19,14 @@ var Gif = new mongoose.Schema({
   delay: Number,
   frames: [{
   }],
+  views: {
+    type: Number,
+    default: 0
+  },
+  likes: {
+    type: Number,
+    default: 0
+  },
   created_at: {
     type: Date,
     default: Date.now

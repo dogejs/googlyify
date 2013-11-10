@@ -55,9 +55,12 @@ app.configure(function () {
 app.get('/upload.:format?', require('./controllers/upload').endpoint);
 app.get('/edit/:id/:key', require('./controllers/edit'));
 app.get('/show/:id', require('./controllers/show'));
+app.get('/like/:id.:format?', require('./controllers/like').like);
+app.get('/unlike/:id.:format?', require('./controllers/like').unlike);
 app.post('/save/:id/:key.:format?', require('./controllers/save'));
 app.all('/render/:id/:key.:format?', require('./controllers/render').endpoint);
 app.get('/renderer/:id/:key.:format?', require('./controllers/renderer'));
+app.get('/top.:format?', require('./controllers/top'));
 
 app.get('/', function(req, res) { res.render("index"); });
 
