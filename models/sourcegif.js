@@ -53,7 +53,7 @@ SourceGif.statics.getOrCreate = function (url, next) {
       gif.save(function (err) {
         if (err) return end(err);
         
-        var dir = "public/uploads";
+        var dir = __dirname.replace("/models", "") + "/public/uploads";
         var path = dir + "/" + gif._id;
         fs.mkdir(path, function (err) {
           if (err) return end(err);

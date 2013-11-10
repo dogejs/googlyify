@@ -49,7 +49,7 @@ Upload.uploader = function (url) {
   var srcev = SourceGif.getOrCreate(url, function (err, src) {
     if (err) {
       //console.error(err);
-      //ev.emit("error", err);
+      ev.emit("error", err);
       ev.emit("end");
       return;
     }
