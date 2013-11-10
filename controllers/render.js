@@ -248,7 +248,10 @@ Render._render = function (id, key, next) {
         go();
       } else {
         fs.mkdir(path, function (err) {
-          if (err) console.error(err);
+          if (err) {
+            ev.emit("error", err);
+            console.error(err);
+          }
           go();
         });
       }
