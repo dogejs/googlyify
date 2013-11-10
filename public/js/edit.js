@@ -295,7 +295,7 @@ editor.recalculateTweenFrames = function (frameNumber1, frameNumber2) {
   }
 }
 
-editor.save = function () {
+editor.saveClicked = function () {
   var outputFrames = []
   ko.utils.arrayForEach(editor.frames(), function (frame) {
     outputFrames.push({
@@ -316,6 +316,9 @@ editor.save = function () {
     console.log(data);
   }, "json");
   console.log(JSON.stringify(gif));
+}
+editor.renderClicked = function () {
+  window.location = "/render/"+_id+"/"+_key;
 }
 
 var Frame = function (f) {
