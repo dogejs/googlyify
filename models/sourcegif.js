@@ -133,7 +133,6 @@ SourceGif.statics.getOrCreate = function (url, next) {
                       });
                     });
                   }, function (err) {
-                    ev.emit("status", {message: "Complete!"});
                     gif.save(function (err) {
                       if (err) return end(err);
                       end(null, gif);
