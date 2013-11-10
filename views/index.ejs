@@ -1,6 +1,6 @@
 <% layout("layout") -%>
 
-<div class="row demo-tiles">
+<div class="row">
   <div class="col-sm-3">
     <div class="tile">
       <img src="/images/dogehead.png">
@@ -53,3 +53,64 @@
   </div>
 </div>
 
+<div class="top-gifs" style="margin-top: 1em; -x-display: none;">
+  <div class="row">
+    <div class="col-sm-3 top-gif-1">
+      <div class="tile">
+        <div class="top-gif-holder">
+          <a href="" class="top-gif-link">
+            <img src="" class="top-gif" />
+          </a>
+        </div>
+        <h4>nice gif</h4>
+      </div>
+    </div>
+    <div class="col-sm-3 top-gif-2">
+      <div class="tile">
+        <div class="top-gif-holder">
+          <a href="" class="top-gif-link">
+            <img src="" class="top-gif" />
+          </a>
+        </div>
+        <h4>such animate</h4>
+      </div>
+    </div>
+    <div class="col-sm-3 top-gif-3">
+      <div class="tile">
+        <div class="top-gif-holder">
+          <a href="" class="top-gif-link">
+            <img src="" class="top-gif" />
+          </a>
+        </div>
+        <h4>very googly</h4>
+      </div>
+    </div>
+    <div class="col-sm-3 top-gif-4">
+      <div class="tile">
+        <div class="top-gif-holder">
+          <a href="" class="top-gif-link">
+            <img src="" class="top-gif" />
+          </a>
+        </div>
+        <h4>wow</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$.getJSON("/top.json", function (gifs) {
+  for (var i=0; i<4 && i<gifs.length; i++) {
+    var el = $(".top-gif-"+(i+1));
+    $(".top-gif", el).attr({
+      src: "http://googlyify.s3.amazonaws.com/"+gifs[i]._id+"/render.gif"
+    });
+    $("a", el).attr({
+      href: "/show/"+gifs[i]._id
+    });
+  }
+  if (gifs.length >= 4) {
+    $(".top-gifs").show();
+  }
+});
+</script>
