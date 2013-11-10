@@ -9,9 +9,9 @@ var Upload = {};
 Upload.endpoint = function (req, res) {
   var url = req.query.url;
   
-  if (url.toLowerCase().substring(url.length-4) != ".gif") {
-    return res.render(500);
-  }
+  //if (url.toLowerCase().substring(url.length-4) != ".gif" || !/^http(s)?:\/\//.test(url)) {
+  //  return res.render(500);
+  //}
   
   if (req.params.format == "json") {
     SourceGif.getOrCreate(url, function (err, src) {
