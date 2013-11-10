@@ -16,28 +16,39 @@ Upload.endpoint = function (req, res) {
   if (req.params.format == "json") {
     SourceGif.getOrCreate(url, function (err, src) {
       if (err) {
-        console.error(err);
+        //console.error(err);
         return res.render(500);
       }
     
       Gif.fromSource(src, function (err, gif) {
         if (err) {
-          console.error(err);
+          //console.error(err);
           return res.render(500);
         }
         res.send({message: "success", redirect: "/edit/"+gif._id+"/"+gif.key});
       });
     });
   } else {
-    res.render("uploading", {url: url});
+    res.render("uploading", {url: url, host: req.get("host")});
   }
 }
 
 Upload.uploader = function (url) {
   var ev = new EventEmitter();
+  this.status = ev;
+  ev.on("error", function (err) { return true; });
+  if (!url) {
+    var err = new Error("Invalid url");
+    setTimeout(function () {
+      ev.emit("error", err);
+    }, 1);
+    console.error(err);
+    return;
+  }
+  
   var srcev = SourceGif.getOrCreate(url, function (err, src) {
     if (err) {
-      console.error(err);
+      //console.error(err);
       //ev.emit("error", err);
       ev.emit("end");
       return;
@@ -45,7 +56,7 @@ Upload.uploader = function (url) {
     
     Gif.fromSource(src, function (err, gif) {
       if (err) {
-        console.log("Uploader: err");
+        //console.log("Uploader: err");
         ev.emit("error", err);
         ev.emit("end");
         return;
@@ -60,8 +71,7 @@ Upload.uploader = function (url) {
     ev.emit("error", data);
     return true;
   });
-  ev.on("error", function (err) { console.error(err); return false; });
-  this.status = ev;
+  ev.on("error", function (err) { return false; });
 }
 
 module.exports = Upload;

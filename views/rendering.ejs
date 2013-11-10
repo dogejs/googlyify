@@ -7,7 +7,6 @@
   </div>
   <div class="row">
     <div class="status-messages col-sm-6">
-      <div class="alert alert-info">Connecting to server...</div>
     </div>
     <div class="col-sm-6 status-image">
       <img class="img-1" src="/images/status/thisisdog.png" />
@@ -21,16 +20,15 @@
 
 <script>
 var statusEl = $(".status-messages");
-var uploadStart = Date.now();
 var progress = 0;
+var uploadStart = Date.now();
 var statusInfo = {
-  cachedFrames: 0,
+  renderedFrames: 0,
   totalFrames: 1,
-  uploadComplete: false,
+  renderComplete: false,
   complete: false,
   error: false
 };
-
 
 rotateDogeImages();
 
@@ -39,34 +37,45 @@ setInterval(function () {
 }, 300);
 
 function getProgress () {
+  var rendered = 88;
   var uploaded = 10;
-  var processed = 88;
-  var misc = 2;
-  var weight = uploaded + processed + misc;
+  var weight = rendered + uploaded;
   
   if (statusInfo.error) { return 1; }
   if (statusInfo.complete) { return 1; }
   
   var progress = 0;
-  if (statusInfo.uploadComplete) {
-    progress += uploaded;
-  } else {
-    progress += (1 - 4/(4+(Date.now()-uploadStart)/1000)) * uploaded;
-  }
   
-  if (statusInfo.cachedFrames > statusInfo.totalFrames) { statusInfo.totalFrames = statusInfo.cachedFrames + 1; }
-  progress += statusInfo.cachedFrames / statusInfo.totalFrames * processed;
+  if (statusInfo.renderedFrames > statusInfo.totalFrames) { statusInfo.totalFrames = statusInfo.renderedFrames + 1; }
+  progress += statusInfo.renderedFrames / statusInfo.totalFrames * rendered;
+  
+  if (statusInfo.renderComplete) {
+    progress += (1 - 5/(5+(Date.now()-uploadStart)/1000)) * uploaded;
+  }
   
   return progress / weight;
 }
 
 var socket = io.connect("http://<%= host %>");
-socket.emit("upload", { url: "<%= url %>" });
+socket.emit("render", {
+  id: "<%= id %>",
+  key: "<%= key %>"
+});
+
+var connected = false;
+showStatusMessage("Connecting to server...", "connect");
 
 socket.on("status", function (data) {
+  if (!connected) {
+    showStatusMessage("Connected!", "connect");
+    connected = true;
+  }
   //console.log("status", data);
   showStatusMessage(data.message, data.tag);
   if (data && data.info) {
+    if (data.info.renderComplete) {
+      uploadStart = Date.now();
+    }
     for (var k in data.info) {
       statusInfo[k] = data.info[k];
     }
@@ -78,7 +87,7 @@ socket.on("complete", function (data) {
   showStatusMessage("<strong>Complete!</strong>", null, "complete");
   $(".status-progress").removeClass("progress-bar-info").addClass("progress-bar-success");
   setTimeout(function () {
-    window.location = data.redirect;
+    //window.location = data.redirect;
   }, 1000);
 });
 socket.on("error", function (err) {

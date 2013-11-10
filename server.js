@@ -54,16 +54,17 @@ app.configure(function () {
 
 app.get('/upload.:format?', require('./controllers/upload').endpoint);
 app.get('/edit/:id/:key', require('./controllers/edit'));
+app.get('/show/:id', require('./controllers/show'));
 app.post('/save/:id/:key.:format?', require('./controllers/save'));
-app.all('/render/:id/:key.:format?', require('./controllers/render'));
+app.all('/render/:id/:key.:format?', require('./controllers/render').endpoint);
 app.get('/renderer/:id/:key.:format?', require('./controllers/renderer'));
 
 app.get('/', function(req, res) { res.render("index"); });
 
 app.use(express.static(__dirname+"/public"));
-//app.use(function (req, res) {
-//  res.render("404");
-//});
+app.use(function (req, res) {
+  res.render("404");
+});
 
 var io = sio.listen(app.listen(port));
 
@@ -113,7 +114,7 @@ io.sockets.on("connection", function (socket) {
         }
       }
       //err.msg = err.message;
-      console.error(err);
+      //console.error(err);
       socket.emit("error", err);
       return true;
     });
@@ -125,6 +126,37 @@ io.sockets.on("connection", function (socket) {
     });
     uploader.status.on("end", function (data) {
       uploader.status.removeAllListeners();
+    });
+  });
+  socket.on("render", function (data) {
+    //socket.emit("status", data);
+    var renderer = new (require('./controllers/render').renderer)(data.id, data.key);
+    
+    renderer.status.on("error", function (err) {
+      err.msg = err.message;
+      
+      if (err.code == "ENOTFOUND") {
+        err.msg = "Uh oh, couldn't connect! Check the URL."
+      }
+      if (!err.msg) {
+        err.msg = "Some kind of error occurred and I feel really terrible about it. ";
+        if (err.code) {
+          err.msg += err.code;
+        }
+      }
+      //err.msg = err.message;
+      //console.error(err);
+      socket.emit("error", err);
+      return true;
+    });
+    renderer.status.on("status", function (data) {
+      socket.emit("status", data);
+    });
+    renderer.status.on("complete", function (data) {
+      socket.emit("complete", data);
+    });
+    renderer.status.on("end", function (data) {
+      renderer.status.removeAllListeners();
     });
   });
 });

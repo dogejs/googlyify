@@ -38,7 +38,7 @@ var SourceGif = new mongoose.Schema({
 
 SourceGif.statics.getOrCreate = function (url, next) {
   var ev = new EventEmitter();
-  ev.on("error", function (err) { console.error(err); });
+  ev.on("error", function (err) { return true;});
   var end = function (err, data) {
     ev.removeAllListeners();
     next(err, data);
@@ -63,7 +63,7 @@ SourceGif.statics.getOrCreate = function (url, next) {
           ev.emit("status", {message: "Fetching "+url+"..."});
           request(url)
           .on("error", function (err) {
-            console.error(err);
+            //console.error(err);
             ev.emit("error", err);
             SG.remove({_id: gif._id}, function (_err) {
               end(err);
@@ -73,7 +73,6 @@ SourceGif.statics.getOrCreate = function (url, next) {
           .on("response", function (data) {
             if (data.statusCode >= 400) {
               ev.emit("err", {message: "Nope. "+data.statusCode});
-              console.log("STATUS CODE:", data.statusCode);
               var err = new Error("Bad HTTP response code ("+data.statusCode+")");
               this.emit("error", err);
               SG.remove({_id: gif._id}, function (_err) {
@@ -84,7 +83,7 @@ SourceGif.statics.getOrCreate = function (url, next) {
           .pipe(fs.createWriteStream(gif.path))
           .on("close", function (err, data) {
             if (err) return end(err);
-            console.log("data", data);
+            //console.log("data", data);
             
             ev.emit("status", {message: "Download complete."});
             // do stuff with gif
