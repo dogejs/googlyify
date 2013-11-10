@@ -2,8 +2,11 @@
 
 <script src="/js/edit.js"></script>
 
+
+<button class="btn btn-danger btn-lg btn-header render-button" data-bind="click: render">render</button>
+<button class="btn btn-info btn-lg btn-header save-button" data-bind="click: save">save</button>
+<h1>Editor</h1>
 <div id="editor" class="editor">
-  Frames: <%= gif.frames.length %><br />
   <div class="timeline" data-bind="foreach: frames">
     <div class="frame" data-bind="css: {selected: selected, keyframe: keyframe, tween: !keyframe() && visible()}">
       <img src="" style="height: 3em;" data-bind="click: $parent.selectFrame, attr: {src: url}" />
@@ -12,24 +15,24 @@
   
   <div style="clear: both;"></div>
   
-  <h2>Editor</h2>
-  <div data-bind="with: currentFrame">
-    <button data-bind="click: $parent.makeMeAKeyframe, visible: !keyframe()">make keyframe</button>
-    <button data-bind="click: $parent.makeMeATween, visible: ($parent.canBeTweened && (keyframe() || !visible()))">make tween</button>
-    <button data-bind="click: $parent.makeMeNotATween, visible: (!keyframe() && visible())">remove tween</button>
-    <button class="save-button" data-bind="click: save">save</button>
-  </div>
   <div class="canvas-holder editor-block" data-bind="style: {width: width, height: height}">
     <img data-bind="attr: {src: img}, style: {width: width, height: height}" />
     <canvas class="editor-canvas" data-bind="style: {width: width, height: height, 'margin-top': -height()}, event: {dblclick: addEyes}"></canvas>
   </div>
   
-  <div class="editor-block" data-bind="with: currentFrame, visible: currentFrame().keyframe">
-    <p>Size: <input class="gap" type="range" min="0.01" max="0.4" step="0.005" data-bind="value: size" /> <span class="show-size" data-bind="text: size"></span></p>
-    <p>Gap: <input class="gap" type="range" min="1" max="5" step="0.01" data-bind="value: gap" /> <span class="show-gap" data-bind="text: gap"></span></p>
-    <p>Rotate Z: <input class="rz" type="range" min="-90" max="90" step="5" data-bind="value: rz" /> <span class="show-rz" data-bind="text: rz"></span></p>
-    <p>Rotate Y: <input class="ry" type="range" min="-90" max="90" step="5" data-bind="value: ry" /> <span class="show-ry" data-bind="text: ry"></span></p>
-    <p>Rotate X: <input class="rx" type="range" min="-90" max="90" step="5" data-bind="value: rx" /> <span class="show-rx" data-bind="text: rx"></span></p>
+  <div class="editor-block">
+    <div data-bind="with: currentFrame">
+      <button class="btn btn-default" data-bind="click: $parent.makeMeAKeyframe, visible: !keyframe()">keyframe [k]</button>
+      <button class="btn btn-default" data-bind="click: $parent.makeMeATween, visible: ($parent.canBeTweened() && (keyframe() || !visible()))">tween [t]</button>
+      <button class="btn btn-default" data-bind="click: $parent.makeMeNotATween, visible: (!keyframe() && visible())">remove tween [t]</button>
+    </div>
+    <div data-bind="with: currentFrame, visible: currentFrame().keyframe">
+      <p>Size: <input class="gap" type="range" min="0.01" max="0.4" step="0.005" data-bind="value: size" /> <span class="show-size" data-bind="text: size"></span></p>
+      <p>Gap: <input class="gap" type="range" min="1" max="5" step="0.01" data-bind="value: gap" /> <span class="show-gap" data-bind="text: gap"></span></p>
+      <p>Rotate Z: <input class="rz" type="range" min="-90" max="90" step="5" data-bind="value: rz" /> <span class="show-rz" data-bind="text: rz"></span></p>
+      <p>Rotate Y: <input class="ry" type="range" min="-90" max="90" step="5" data-bind="value: ry" /> <span class="show-ry" data-bind="text: ry"></span></p>
+      <p>Rotate X: <input class="rx" type="range" min="-90" max="90" step="5" data-bind="value: rx" /> <span class="show-rx" data-bind="text: rx"></span></p>
+    </div>
   </div>
 </div>
 <script>

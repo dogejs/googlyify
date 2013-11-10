@@ -1,41 +1,102 @@
 html, body {
   margin: 0;
+  background-color: #3498DB;
 }
 
 img {
   border: none;
 }
 
+.container {
+  background-color: #ECF0F1;
+  border-radius: 0.5em;
+  margin-top: 1em;
+}
+
+h1, h2, h3, h4 {
+  color: #34495E;
+}
+
+.container-header {
+  background: none;
+  padding-right: 0;
+}
+
+.container-header .caption {
+  float: right;
+  text-align: center;
+  background-color: #ECF0F1;
+  border-radius: 0.5em;
+  margin: 0;
+  padding: 0 1em 1em 1em;
+}
+.container-header .caption h2 {
+  margin: 0.4em 0 0 0;
+  line-height: 80%;
+}
+.container-header .caption p {
+  margin: 0;
+  text-align: center;
+}
+
+.container-body {
+  padding-bottom: 3em;
+}
+
 .editor-block {
   float: left;
+  margin-top: 1em;
 }
 
 .timeline .frame {
   float: left;
-  border: solid 2px #fff;
+  border: solid 2px #ECF0F1;
 }
 
 .timeline .frame.selected {
-  border: solid 2px #0f0;
-}
-
-.editor-canvas {
-  position: absolute;
-  border: solid 1px #0f0;
+  border: solid 2px #2ECC71;
 }
 
 .timeline .frame.keyframe {
-  border-bottom: solid 2px #f00;
+  -x-border-bottom: solid 2px #f00;
+  font-family: "Flat-UI-Icons";
+}
+.timeline .frame.keyframe:after {
+  content: "\e032";
+  color: #E74C3C;
 }
 
 .timeline .frame.tween {
-  border-bottom: solid 2px #0f0;
+  -x-border-bottom: solid 2px #0f0;
+  font-family: "Flat-UI-Icons";
+  background-color: #95A5A6;
 }
+.timeline .frame.tween:after {
+  content: "\e02b";
+  color: #ECF0F1;
+}
+.timeline .frame.keyframe:after, .timeline .frame.tween:after {
+  position: absolute;
+  margin-top: -60px;
+  padding: 0.2em;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+}
+
 .timeline .frame.tween img {
   opacity: 0.5;
 }
 
-.save-button {
+.canvas-holder {
+  margin-right: 1em;
+}
+
+.editor-canvas {
+  position: absolute;
+}
+
+.btn-header {
   float: right;
+  margin-top: 2.4em;
+  margin-left: 1em;
 }
 

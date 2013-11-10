@@ -1,17 +1,39 @@
 <html>
 <head>
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="/js/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="/js/jquery.ui.touch-punch.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap-select.js"></script>
+<script src="/js/bootstrap-switch.js"></script>
+<script src="/js/flatui-checkbox.js"></script>
+<script src="/js/flatui-radio.js"></script>
+<script src="/js/jquery.tagsinput.js"></script>
+<script src="/js/jquery.placeholder.js"></script>
 <script src="/js/lodash.min.js"></script>
 <script src="/js/knockout.min.js"></script>
 <script src="/js/keymaster.min.js"></script>
 <script src="/js/box2dweb-rope.js"></script>
 <script src="/js/googly.js"></script>
+
+
+<link rel="stylesheet" href="/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/css/flat-ui.css" />
 <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <h1>HEADER</h1>
-
-  <%- body %>
-
+  <div class="container container-header">
+    <a href="/"><img src="/images/logo.png" /></a>
+    <div class="caption">
+      <h2>FINALLY</h2>
+      <p>
+        Googly Eyes as a Service
+      </p>
+      <iframe src="http://nodeknockout.com/iframe/googlyify" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
+    </div>
+  </div>
+  <div class="container container-body">
+    <%- body %>
+  </div>
 </body>
 </html>

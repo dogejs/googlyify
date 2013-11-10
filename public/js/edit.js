@@ -399,12 +399,20 @@ key("right", function () {
   }
 });
 
-key("backspace", function (event) {
+key("d", function (event) {
+  event.preventDefault();
   if (editor.currentFrame() && editor.currentFrame().visible()) {
     editor.deleteFrame(editor.currentFrame());
-    event.preventDefault();
-    return false;
   }
+  return false;
+});
+
+key("backspace", function (event) {
+  event.preventDefault();
+  if (editor.currentFrame() && editor.currentFrame().visible()) {
+    editor.deleteFrame(editor.currentFrame());
+  }
+  return false;
 });
 
 key("t", function () {
