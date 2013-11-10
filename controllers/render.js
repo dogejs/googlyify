@@ -121,8 +121,10 @@ var renderEyes = function (gif, frame, world1, world2, next) {
     world2.draw();
     
     setTimeout(function () {
-      world1.draw();
-      world2.draw();
+      for (var i=0; i<8; i++) {
+        world1.draw();
+        world2.draw();
+      }
       
       if (!newpos1 || !newpos2) { return console.log("Render unsuccessful", newpos1, newpos2); }
       

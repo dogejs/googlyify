@@ -167,7 +167,7 @@ var Eye = function (world, id) {
   var bodyDef = new b2BodyDef;
     bodyDef.type = b2Body.b2_dynamicBody;
   this.pupil = this.world.world.CreateBody(bodyDef);
-  this.pupil.SetLinearDamping(0.2);
+  this.pupil.SetLinearDamping(0.1);
   this.pupil.CreateFixture(fixDef);
   
   var jointDef = new b2RopeJointDef();
@@ -182,7 +182,7 @@ Eye.prototype.render = function (previousPosition, currentPosition, previousPupi
   if (previousPupilPosition && typeof previousPupilPosition.x == "number") {
     
   } else {
-    previousPupilPosition = {x: 0, y: 0};
+    previousPupilPosition = {x: 0, y: 1};
   }
   
   if (!this.pupil || !this.eye) { console.log("eye not set up yet?", this.pupil, this.eye); return false; }
@@ -200,7 +200,7 @@ Eye.prototype.render = function (previousPosition, currentPosition, previousPupi
     }
   } else {
     this.eye.SetPosition(new b2Vec2(currentPosition.x, currentPosition.y));
-    this.pupil.SetPosition(new b2Vec2(currentPosition.x, currentPosition.y));
+    this.pupil.SetPosition(new b2Vec2(currentPosition.x, currentPosition.y + this.radius));
   }
   
   this.world.draw();
@@ -216,8 +216,8 @@ Eye.prototype.getPupilCoords = function () {
   console.log("dist?", this.pupil.GetPosition().x, this.eye.GetPosition().x, this.radius, dist);
   maxDist = 0.9;
   if (dist > maxDist) {
-    //_x *= maxDist/dist;
-    //_y *= maxDist/dist;
+    _x *= maxDist/dist;
+    _y *= maxDist/dist;
   }
   return {x: _x, y: _y};
 }
