@@ -1,0 +1,11 @@
+<% layout("layout") -%>
+
+<div class="container-block clearfix">
+  <% gifs.forEach(function (gif) { %>
+  <div style="float: left; margin: 1em;">
+    <a href="/show/<%= gif._id %>">
+      <img src="http://googlyify.s3.amazonaws.com/<%= gif._id %>/render.gif" />
+    </a>
+  </div>
+  <% }) %>
+</div>
