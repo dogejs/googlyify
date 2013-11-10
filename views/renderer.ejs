@@ -1,0 +1,40 @@
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="/js/lodash.min.js"></script>
+<script src="/js/knockout.min.js"></script>
+<script src="/js/keymaster.min.js"></script>
+<script src="/js/box2dweb-rope.js"></script>
+<script src="/js/googly.js"></script>
+<script src="/js/renderer.js"></script>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="renderer" class="renderer">
+  Frames: <%= gif.frames.length %><br />
+  <div class="timeline" data-bind="foreach: frames">
+    <div class="frame" data-bind="css: {selected: selected}">
+      <img src="" style="height: 3em;" data-bind="click: $parent.selectFrame, attr: {src: url}" />
+    </div>
+  </div>
+  
+  <div style="clear: both;"></div>
+  
+  <h2>renderer</h2>
+  <button data-bind="click: render">render</button>
+  <div class="canvas-holder" data-bind="style: {width: width, height: height}">
+    <img data-bind="attr: {src: img}, style: {width: width, height: height}" />
+    <canvas class="renderer-canvas" data-bind="style: {width: width, height: height, 'margin-top': -height()}"></canvas>
+  </div>
+  <canvas id="preview1" width="600" height="400"></canvas>
+  <canvas id="preview2" width="600" height="400"></canvas>
+</div>
+<script>
+var _id = "<%= _id %>";
+var _key = "<%= _key %>";
+setupGif(<%- JSON.stringify(gif) %>);
+</script>
+
+</body>
+</html>

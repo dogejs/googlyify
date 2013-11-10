@@ -36,8 +36,10 @@ Gif.statics.fromSource = function (src, next) {
       keyframe: false,
       x: 0,
       y: 0,
-      x2: 0,
-      y2: 0,
+      eye1x: 0,
+      eye1y: 0,
+      eye2x: 0,
+      eye2y: 0,
       size: 0.06, // radius as fraction of src width
       gap: 1, // multiple of size between eye1.cx & eye2.cx
       rx: 0,

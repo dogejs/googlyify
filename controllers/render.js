@@ -2,12 +2,14 @@ var fs = require("fs");
 var mongoose = require("mongoose");
 var async = require("async");
 var _ = require("lodash");
+var rimraf = require("rimraf");
 var request = require("request");
 var knox = require("knox");
 var Canvas = require("canvas");
 var Image = Canvas.Image;
-var googly = require("../public/js/googly"); // lol
 var exec = require("child_process").exec;
+var googly = require("../public/js/googly"); // lol
+var Box2d = require("../public/js/box2dweb-rope"); // lol
 
 var s3 = knox.createClient({
   key: process.env.AMAZON_KEY,
@@ -44,6 +46,10 @@ module.exports = function (req, res) {
       var url = "http://googlyify.s3.amazonaws.com/" + frame.path;
       console.log("url", url);
       var local = dir + "/" + gif._id + "/frame-"+frame.id+".jpg";
+      
+      frame.world1 = new googly.World();
+      frame.world2 = new googly.World();
+      
       request(url)
       .pipe(fs.createWriteStream(local))
       .on("close", function () {
@@ -69,27 +75,113 @@ module.exports = function (req, res) {
     }
 
     var drawEyes = function (frame, next) {
+      var sc = 640/gif.width;
       console.log("drawEyes["+frame.id+"])");
       var opts;
       if (frame.visible) {
-        frame.x *= gif.width;
-        frame.y *= gif.height;
-        frame.size *= gif.width;
-        frame.gap *= frame.size;
+        frame.xs = frame.x * gif.width;
+        frame.ys = frame.y * gif.height;
+        frame.sizes = frame.size * gif.width;
+        frame.gaps = frame.gap * frame.sizes;
         opts = {
           fillStyle: "#fff",
           strokeStyle: "none"
         };
-        googly.drawEyes(frame.ctx, frame, opts);
-        console.log(frame.ctx, frame, opts);
-        opts = {
-          fillStyle: "#000",
-          strokeStyle: "none",
-          size: frame.size*0.4
+        
+        _frame = _.clone(frame);
+        _frame.x = frame.xs;
+        _frame.y = frame.ys;
+        _frame.size = frame.sizes;
+        _frame.gap = frame.gaps;
+        googly.drawEyes(frame.ctx, _frame, opts);
+        
+        
+        p = frame.previous;
+        f = frame;
+        var previousPosition = null;
+        var previousPupilPosition = null;
+        if (p) {
+          previousPosition = {
+            x: p.xs,
+            y: p.ys
+          };
+          previousPupilPosition = {
+            x: p.eye1x,
+            y: p.eye1y
+          }
+        }
+        var currentPosition = {
+          x: f.xs,
+          y: f.ys
         };
-        googly.drawEyes(frame.ctx, frame, opts);
+
+        var newpos1 = frame.world1.eye.render(previousPosition, currentPosition, previousPupilPosition);
+
+        var previousPosition = null;
+        var previousPupilPosition = null;
+        if (p) {
+          previousPosition = {
+            x: p.xs,
+            y: p.ys
+          };
+          previousPupilPosition = {
+            x: p.eye2x,
+            y: p.eye2y
+          }
+        }
+        var currentPosition = {
+          x: f.xs,
+          y: f.ys
+        };
+        console.log({a: previousPosition, b: currentPosition, c: previousPupilPosition});
+        newpos2 = frame.world2.eye.render(previousPosition, currentPosition, previousPupilPosition);
+        
+        frame.world1.draw();
+        frame.world2.draw();
+        
+        setTimeout(function () {
+          frame.world1.draw();
+          frame.world2.draw();
+          frame.world1.draw();
+          frame.world2.draw();
+          frame.world1.draw();
+          frame.world2.draw();
+          frame.world1.draw();
+          frame.world2.draw();
+          frame.world1.draw();
+          frame.world2.draw();
+          
+          if (!newpos1 || !newpos2) { return console.log("Render unsuccessful", newpos1, newpos2); }
+          
+          setTimeout(function () {
+            newpos1 = frame.world1.eye.getPupilCoords();
+            newpos2 = frame.world2.eye.getPupilCoords();
+            
+            f.eye1x = newpos1.x;
+            f.eye1y = newpos1.y;
+            f.eye2x = newpos2.x;
+            f.eye2y = newpos2.y;
+        
+            //console.log("eyes", f.eye1x, f.eye1y, f.eye2x, f.eye2y);
+        
+            opts = {
+              fillStyle: "#000",
+              strokeStyle: "none",
+              size: frame.sizes*0.4,
+              offset: true
+            };
+            _frame = _.clone(frame);
+            _frame.x = frame.xs;
+            _frame.y = frame.ys;
+            _frame.size = frame.sizes;
+            _frame.gap = frame.gaps;
+            googly.drawEyes(frame.ctx, _frame, opts);
+            next();
+          }, 100);
+        }, 100);
+      } else {
+        next();
       }
-      next();
     }
     
     var padZero = function (str, ln) {
@@ -114,13 +206,13 @@ module.exports = function (req, res) {
       if (err) throw err;
       console.log("finished");
       
-      fs.rmdir(path, function (err) {
-        exec("gm convert -delay 10 -loop 0 "+path+"/render-*.jpg "+path+"/render.gif", function (err, data) {
+      exec("gm convert -delay 10 -loop 0 "+path+"/render-*.jpg "+path+"/render.gif", function (err, data) {
+        if (err) throw err;
+        
+        s3.putFile(path+"/render.gif", gif._id+"/render.gif", {"x-amz-acl": "public-read"}, function (err, _res) {
           if (err) throw err;
           
-          s3.putFile(path+"/render.gif", gif._id+"/render.gif", {"x-amz-acl": "public-read"}, function (err, _res) {
-            if (err) throw err;
-            
+          rimraf(path+"__", function (err) {
             if (req.params.format == "json") {
               res.send({message: "success"});
             } else {
@@ -132,7 +224,7 @@ module.exports = function (req, res) {
     }
     
     var go = function () {
-      async.each(frames, async.applyEachSeries([createCanvas, drawEyes, writeFile]), finished);
+      async.eachSeries(frames, async.applyEachSeries([createCanvas, drawEyes, writeFile]), finished);
     }
     fs.exists(path, function (err, exists) {
       if (exists) {

@@ -32,6 +32,7 @@ app.configure(function () {
   app.set("views", __dirname + "/views");
   app.set("view engine", "ejs");
   app.use(express.cookieParser());
+  /*
   app.use(express.session({
     cookie: {
       maxAge: 1000 * 86400 * 365 * 5
@@ -39,6 +40,7 @@ app.configure(function () {
     secret: "nodeknockout!",
     store: mongooseSessionStore
   }));
+  /**/
   //app.dynamicHelpers
   app.use(express.bodyParser());
   app.use(express.methodOverride());
@@ -50,6 +52,7 @@ app.get('/upload', require('./controllers/upload'));
 app.get('/edit/:id/:key', require('./controllers/edit'));
 app.post('/save/:id/:key.:format?', require('./controllers/save'));
 app.all('/render/:id/:key.:format?', require('./controllers/render'));
+app.get('/renderer/:id/:key.:format?', require('./controllers/renderer'));
 
 app.get('/', function(req, res) {
   var voteko = '<iframe src="http://nodeknockout.com/iframe/googlyify" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>';
