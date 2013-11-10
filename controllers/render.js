@@ -9,7 +9,7 @@ var Canvas = require("canvas");
 var Image = Canvas.Image;
 var exec = require("child_process").exec;
 var googly = require("../public/js/googly"); // lol
-var Box2d = require("../public/js/box2dweb-rope"); // lol
+var Box2d = require("../public/js/lib/box2dweb-rope"); // lol
 
 var s3 = knox.createClient({
   key: process.env.AMAZON_KEY,
@@ -23,6 +23,9 @@ var Gif = mongoose.model("Gif");
 module.exports = function (req, res) {
   var id = req.params.id;
   var key = req.params.key;
+  
+  var world1 = new googly.World();
+  var world2 = new googly.World();
   
   Gif.findOne({_id: id, key: key}, function (err, gif) {
     if (err) return res.render(500);
@@ -46,9 +49,6 @@ module.exports = function (req, res) {
       var url = "http://googlyify.s3.amazonaws.com/" + frame.path;
       console.log("url", url);
       var local = dir + "/" + gif._id + "/frame-"+frame.id+".jpg";
-      
-      frame.world1 = new googly.World();
-      frame.world2 = new googly.World();
       
       request(url)
       .pipe(fs.createWriteStream(local))
@@ -77,6 +77,7 @@ module.exports = function (req, res) {
     var drawEyes = function (frame, next) {
       var sc = 640/gif.width;
       console.log("drawEyes["+frame.id+"])");
+      console.log("=======================");
       var opts;
       if (frame.visible) {
         frame.xs = frame.x * gif.width;
@@ -115,7 +116,7 @@ module.exports = function (req, res) {
           y: f.ys
         };
 
-        var newpos1 = frame.world1.eye.render(previousPosition, currentPosition, previousPupilPosition);
+        var newpos1 = world1.eye.render(previousPosition, currentPosition, previousPupilPosition);
 
         var previousPosition = null;
         var previousPupilPosition = null;
@@ -134,35 +135,27 @@ module.exports = function (req, res) {
           y: f.ys
         };
         console.log({a: previousPosition, b: currentPosition, c: previousPupilPosition});
-        newpos2 = frame.world2.eye.render(previousPosition, currentPosition, previousPupilPosition);
+        newpos2 = world2.eye.render(previousPosition, currentPosition, previousPupilPosition);
         
-        frame.world1.draw();
-        frame.world2.draw();
+        world1.draw();
+        world2.draw();
         
         setTimeout(function () {
-          frame.world1.draw();
-          frame.world2.draw();
-          frame.world1.draw();
-          frame.world2.draw();
-          frame.world1.draw();
-          frame.world2.draw();
-          frame.world1.draw();
-          frame.world2.draw();
-          frame.world1.draw();
-          frame.world2.draw();
+          world1.draw();
+          world2.draw();
           
           if (!newpos1 || !newpos2) { return console.log("Render unsuccessful", newpos1, newpos2); }
           
           setTimeout(function () {
-            newpos1 = frame.world1.eye.getPupilCoords();
-            newpos2 = frame.world2.eye.getPupilCoords();
+            newpos1 = world1.eye.getPupilCoords();
+            newpos2 = world2.eye.getPupilCoords();
             
             f.eye1x = newpos1.x;
             f.eye1y = newpos1.y;
             f.eye2x = newpos2.x;
             f.eye2y = newpos2.y;
         
-            //console.log("eyes", f.eye1x, f.eye1y, f.eye2x, f.eye2y);
+            console.log("eyes", f.eye1x, f.eye1y, f.eye2x, f.eye2y);
         
             opts = {
               fillStyle: "#000",
