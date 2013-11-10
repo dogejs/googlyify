@@ -8,9 +8,17 @@ img {
 }
 
 .container {
+  margin-top: 1em;
+}
+
+.container-block {
   background-color: #ECF0F1;
   border-radius: 0.5em;
-  margin-top: 1em;
+}
+
+.inner-container {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 h1, h2, h3, h4 {
@@ -19,7 +27,10 @@ h1, h2, h3, h4 {
 
 .container-header {
   background: none;
-  padding-right: 0;
+}
+
+.container-header a.logo {
+  float: left;
 }
 
 .container-header .caption {
@@ -41,6 +52,10 @@ h1, h2, h3, h4 {
 
 .container-body {
   padding-bottom: 3em;
+}
+.container-block {
+  padding: 0.4em 2em 1em 2em;
+  margin-top: 1em;
 }
 
 .editor-block {
@@ -100,3 +115,36 @@ h1, h2, h3, h4 {
   margin-left: 1em;
 }
 
+.status-messages .alert {
+  -x-margin: 0;
+}
+
+.status-image {
+  -x-float: right;
+  -x-max-width: 40%;
+}
+.status-image img {
+  max-width: 100%;
+  display: none;
+}
+.status-image.show-1 .img-1,
+.status-image.show-2 .img-2,
+.status-image.show-3 .img-3,
+.status-image.show-4 .img-4 {
+  display: block;
+}
+
+
+
+.form-control:focus {
+  border-color: #2980B9;
+}
+.progress {
+  background-color: #BDC3C7;
+}
+
+@media (max-width: 992px) {
+  .demo-tiles .tile {
+    margin-bottom: 1em;
+  }
+}

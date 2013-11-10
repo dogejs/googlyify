@@ -1,9 +1,131 @@
 <% layout("layout") -%>
 
-Uploading.....
-<div class="error-message"></div>
+<div class="container-block clearfix">
+  <h3>ok ok hold on.....</h3>
+  <div class="progress">
+    <div class="progress-bar progress-bar-info status-progress" style="width: 0;"></div>
+  </div>
+  <div class="row">
+    <div class="status-messages col-sm-6">
+      <div class="alert alert-info">Connecting to server...</div>
+    </div>
+    <div class="col-sm-6 status-image">
+      <img class="img-1" src="images/status/thisisdog.png" />
+      <img class="img-2" src="images/status/noidea1.jpg" />
+      <img class="img-3" src="images/status/noidea2.jpg" />
+      <img class="img-4" src="images/status/noidea3.jpg" />
+    </div>
+  </div>
+  <div class="error-message"></div>
+</div>
 
 <script>
+
+var currentImage = 0;
+function setNewImage () {
+  var attempts = 0;
+  var imageCount = 4;
+  var newImage = currentImage;
+  while (++attempts < 10 && newImage == currentImage) {
+    newImage = Math.ceil(Math.random()*imageCount);
+  }
+  currentImage = newImage;
+  $(".status-image").removeClass("show-1 show-2 show-3 show-4").addClass("show-"+newImage);
+}
+setInterval(function () {
+  setNewImage();
+}, 4000);
+setInterval(function () {
+  $(".status-progress").css({width: (getProgress()*100) + "%"});
+}, 300);
+setNewImage();
+
+var progress = 0;
+var statusInfo = {
+  cachedFrames: 0,
+  totalFrames: 1,
+  uploadComplete: false,
+  complete: false,
+  error: false
+};
+
+var uploadStart = Date.now();
+
+function getProgress () {
+  var uploaded = 10;
+  var processed = 88;
+  var misc = 2;
+  var weight = uploaded + processed + misc;
+  
+  if (statusInfo.error) { return 1; }
+  if (statusInfo.complete) { return 1; }
+  
+  var progress = 0;
+  if (statusInfo.uploadComplete) {
+    progress += uploaded;
+  } else {
+    progress += (1 - 4/(4+(Date.now()-uploadStart)/1000)) * uploaded;
+  }
+  
+  if (statusInfo.cachedFrames > statusInfo.totalFrames) { statusInfo.totalFrames = statusInfo.cachedFrames + 1; }
+  progress += statusInfo.cachedFrames / statusInfo.totalFrames * processed;
+  
+  return progress / weight;
+}
+
+var socket = io.connect("http://localhost:8000");
+socket.emit("upload", { url: "<%= url %>" });
+var statusEl = $(".status-messages");
+
+
+socket.on("status", function (data) {
+  console.log("status", data);
+  var div = false;
+  if (data && data.tag) {
+    existing = $(".status-"+data.tag, statusEl);
+    if (existing && existing.length > 0) {
+      div = existing;
+    } else {
+      div = $("<div>");
+      div.addClass("status-"+data.tag);
+    }
+  }
+  if (!div) {
+    div = $("<div>");
+  }
+  div.addClass("alert alert-info");
+  div.html(data.message);
+  statusEl.prepend(div);
+  if (data && data.info) {
+    for (var k in data.info) {
+      statusInfo[k] = data.info[k];
+    }
+  }
+});
+socket.on("complete", function (data) {
+  console.log("complete!", data);
+  statusInfo.complete = true;
+  var div = $("<div>");
+  div.addClass("alert alert-success");
+  div.html("<strong>Complete!</strong>");
+  statusEl.prepend(div);
+  $(".status-progress").removeClass("progress-bar-info").addClass("progress-bar-success");
+  setTimeout(function () {
+    window.location = data.redirect;
+  }, 1000);
+});
+socket.on("error", function (err) {
+  console.log("error!", err);
+  var div = $("<div>");
+  div.addClass("alert alert-danger");
+  var msg = err.msg || JSON.stringify(err);
+  div.html("<strong>Error!</strong> " + msg);
+  statusEl.prepend(div);
+  statusInfo.error = true;
+  $(".status-progress").removeClass("progress-bar-info").addClass("progress-bar-danger");
+});
+
+/** /
 $.getJSON("/upload.json?url=<%= url %>", function (data) {
   if (data.message == "success") {
     window.location = data.redirect;
@@ -12,4 +134,5 @@ $.getJSON("/upload.json?url=<%= url %>", function (data) {
     $(".error-message").html(data.message);
   }
 });
+/**/
 </script>

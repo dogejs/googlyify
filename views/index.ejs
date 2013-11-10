@@ -1,0 +1,41 @@
+<% layout("layout") -%>
+
+<div class="row demo-tiles">
+  <div class="col-sm-3">
+    <div class="tile">
+      stuff
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="tile">
+      stuff
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="tile">
+      stuff
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="tile">
+      stuff
+    </div>
+  </div>
+</div>
+
+<div class="container-block" style="padding-top: 2em; padding-bottom: 2em;">
+  <div class="row">
+    <h2 class="col-md-4 col-md-offset-1 col-sm-5 col-sm-offset-1 col-xs-offset-1">Try it now!</h2>
+    <div class="col-md-6 col-sm-5 col-xs-10 col-md-offset-0 col-sm-offset-0 col-xs-offset-1">
+      <div>
+        <form action="/upload" method="GET">
+          <p style="padding-top: 1em;">
+            Add googly eyes to a GIF:<br />
+            <input type="text" name="url" class="form-control" style="width: 80%; display: inline-block;" placeholder="URL" /> <input type="submit" class="btn btn-info btn-upload-gif" value="go!" />
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

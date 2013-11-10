@@ -125,45 +125,69 @@ editor.selectFrame = function (frame) {
   editor.currentFrameId(frame.id());
 }
 
-editor.makeMeAKeyframe = function (frame, defaultX, defaultY) {
-  console.log("makeMeAKeyframe", frame, defaultX, defaultY);
-  if (typeof defaultX != "number") {
-    defaultX = 0.5;
+editor.makeMeAKeyframe = function (frame, _x, _y) {
+  console.log("makeMeAKeyframe", frame, _x, _y);
+  if (frame.keyframe()) { return; }
+  
+  defaultX = 0.5;
+  defaultY = 0.5;
+  var prevId = null;
+  
+  for (i = frame.id()-1; i >= 0 && !prevId; i--) {
+    if (editor.frames()[i].keyframe()) {
+      prevId = i;
+    }
   }
-  if (typeof defaultY != "number") {
-    defaultY = 0.5;
+  var prev = null;
+  if (typeof prevId == "number") {
+    prev = editor.frames()[prevId];
+    defaultX = prev.x();
+    defaultY = prev.y();
   }
+  
+  if (typeof _x != "number") {
+    _x = defaultX;
+  }
+  if (typeof _y != "number") {
+    _y = defaultY;
+  }
+  
+  var found = false;
   frame.keyframe(true);
   if (!frame.visible()) {
     frame.visible(true);
-    if (typeof editor.previousKeyframeId() == "number" && typeof editor.nextKeyframeId() == "number") {
-      console.log("Recalculate tween frames", editor.previousKeyframeId(), editor.nextKeyframeId());
-      editor.recalculateTweenFrames(editor.previousKeyframeId(), editor.nextKeyframeId());
-      return;
-    } else
-    if (typeof editor.previousKeyframeId() == "number") {
-      console.log("copy from previous keyframe ", editor.previousKeyframeId());
-      frame.keyframe(true);
-      var prev = editor.frames()[editor.previousKeyframeId()];
-      frame.x(prev.x());
-      frame.y(prev.y());
+    if (prevId != null && prev) {
       frame.size(prev.size());
       frame.gap(prev.gap());
       frame.rx(prev.rx());
       frame.ry(prev.ry());
       frame.rz(prev.rz());
-      return;
+    }
+  } else {
+    frame.x(Math.round(frame.x()));
+    frame.y(Math.round(frame.y()));
+    frame.rx(Math.round(frame.rx()));
+    frame.ry(Math.round(frame.ry()));
+    frame.rz(Math.round(frame.rz()));
+    frame.gap(Math.round(frame.gap()/0.01)*0.01);
+    frame.size(Math.round(frame.size()/0.005)*0.005);
+  }
+  console.log("Making keyframe: ", _x, _y, prevId);
+  frame.x(_x);
+  frame.y(_y);
+  
+  if (frame.id() > 0) {
+    var prevFrame = editor.frames()[frame.id()-1];
+    if (prevFrame.visible() && !prevFrame.keyframe()) {
+      editor.makeTween(prevFrame.id());
     }
   }
-  var found = false;
-  for (var i = frame.id()-1; i>=0 && !found; i--) {
-    if (editor.frames()[i].keyframe()) {
-      frame.gap(editor.frames()[i].gap());
-      frame.size(editor.frames()[i].size());
+  if (frame.id() < editor.frames().length-1) {
+    var nextFrame = editor.frames()[frame.id()+1];
+    if (nextFrame.visible() && !nextFrame.keyframe()) {
+      editor.makeTween(nextFrame.id());
     }
   }
-  frame.x(defaultX);
-  frame.y(defaultY);
 }
 
 editor.makeMeATween = function (frame) {
@@ -291,7 +315,7 @@ editor.save = function () {
   $.post("/save/"+_id+"/"+_key+".json", gif, function (data) {
     console.log(data);
   }, "json");
-  console.log(JSON.stringify(gif, null, 2));
+  console.log(JSON.stringify(gif));
 }
 
 var Frame = function (f) {
@@ -383,7 +407,7 @@ function setupGif (gif) {
   ko.applyBindings(editor, $("#editor")[0]);
 }
 
-key("left", function () {
+key("h, left", function () {
   if (editor.currentFrameId() == 0) {
     editor.currentFrameId(editor.frames().length-1);
   } else {
@@ -391,7 +415,17 @@ key("left", function () {
   }
 });
 
-key("right", function () {
+var jkSkip = 5;
+key("k", function () {
+  var n = editor.currentFrameId()-jkSkip;
+  if (n < 0) {
+    editor.currentFrameId(editor.frames().length-1);
+  } else {
+    editor.currentFrameId(n);
+  }
+});
+
+key("l, right", function () {
   if (editor.currentFrameId() >= editor.frames().length-1) {
     editor.currentFrameId(0);
   } else {
@@ -399,15 +433,16 @@ key("right", function () {
   }
 });
 
-key("d", function (event) {
-  event.preventDefault();
-  if (editor.currentFrame() && editor.currentFrame().visible()) {
-    editor.deleteFrame(editor.currentFrame());
+key("j", function () {
+  var n = editor.currentFrameId() + jkSkip;
+  if (n >= editor.frames().length-1) {
+    editor.currentFrameId(0);
+  } else {
+    editor.currentFrameId(n);
   }
-  return false;
 });
 
-key("backspace", function (event) {
+key("d, backspace", function (event) {
   event.preventDefault();
   if (editor.currentFrame() && editor.currentFrame().visible()) {
     editor.deleteFrame(editor.currentFrame());
@@ -427,7 +462,7 @@ key("t", function () {
   }
 });
 
-key("k", function () {
+key("a", function () {
   if (editor.currentFrame()) {
     if (editor.currentFrame().keyframe()) {
       editor.deleteFrame(editor.currentFrame());

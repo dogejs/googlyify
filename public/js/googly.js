@@ -1,7 +1,7 @@
 
 if (typeof require != "undefined") {
   _ = require("lodash");
-  Box2D = require("./box2dweb-rope");
+  Box2D = require("./lib/box2dweb-rope");
 }
 
 var b2World = Box2D.Dynamics.b2World;

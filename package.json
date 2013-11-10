@@ -26,7 +26,8 @@
     "mongoose-shortid": "~0.4.1",
     "knox": "~0.8.6",
     "rimraf": "~2.2.2",
-    "ejs-locals": "~1.0.2"
+    "ejs-locals": "~1.0.2",
+    "socket.io": "~0.9.16"
   },
   "engines": {
     "node": "0.10.x"
