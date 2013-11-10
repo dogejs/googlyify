@@ -60,6 +60,16 @@ googly.drawEyes = function (ctx, frame, opts) {
       return {x:_x, y:_y, z:_z};
     });
     
+    // rotate about the x axis
+    object.points = _.map(object.points, function (point) {
+      var _a = Math.atan2(point.y, point.z) + frame.rx/180*Math.PI;
+      var _r = Math.sqrt(Math.pow(point.z,2) + Math.pow(point.y,2));
+      var _x = point.x;
+      var _y = Math.sin(_a)*_r;
+      var _z = Math.cos(_a)*_r;
+      return {x:_x, y:_y, z:_z};
+    });
+    
     // rotate about the y axis
     object.points = _.map(object.points, function (point) {
       var _a = Math.atan2(point.z, point.x) + frame.ry/180*Math.PI;
@@ -70,15 +80,6 @@ googly.drawEyes = function (ctx, frame, opts) {
       return {x:_x, y:_y, z:_z};
     });
     
-    // rotate about the x axis
-    object.points = _.map(object.points, function (point) {
-      var _a = Math.atan2(point.y, point.z) + frame.rx/180*Math.PI;
-      var _r = Math.sqrt(Math.pow(point.z,2) + Math.pow(point.y,2));
-      var _x = point.x;
-      var _y = Math.sin(_a)*_r;
-      var _z = Math.cos(_a)*_r;
-      return {x:_x, y:_y, z:_z};
-    });
     
     object.points = _.map(object.points, function (point) {
       return {x:cx+point.x, y:cy+point.y};
