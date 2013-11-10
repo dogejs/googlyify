@@ -17,13 +17,15 @@
         <button class="btn btn-default" data-bind="click: $parent.makeMeAKeyframe, visible: !keyframe()">add keyframe [a]</button>
         <button class="btn btn-default" data-bind="click: $parent.makeMeATween, visible: ($parent.canBeTweened() && (keyframe() || !visible()))">tween [t]</button>
         <button class="btn btn-default" data-bind="click: $parent.makeMeNotATween, visible: (!keyframe() && visible())">remove tween [t]</button>
+        <div data-bind="visible: !keyframe()">(or double-click on the image to add eyes)</div>
       </div>
       <div data-bind="with: currentFrame, visible: currentFrame().keyframe">
-        <p>Size: <input class="gap" type="range" min="0.01" max="0.4" step="0.005" data-bind="value: size" /> <span class="show-size" data-bind="text: size"></span></p>
-        <p>Gap: <input class="gap" type="range" min="1" max="5" step="0.01" data-bind="value: gap" /> <span class="show-gap" data-bind="text: gap"></span></p>
+        <p>Size: <input class="size" type="range" min="0.01" max="0.4" step="0.005" data-bind="value: size" /></p>
+        <p>Gap: <input class="gap" type="range" min="1" max="5" step="0.01" data-bind="value: gap" /> (space between eyes)</p>
         <p>Rotate Z: <input class="rz" type="range" min="-90" max="90" step="1" data-bind="value: rz" /> <span class="show-rz" data-bind="text: rz"></span></p>
         <p>Rotate Y: <input class="ry" type="range" min="-90" max="90" step="1" data-bind="value: ry" /> <span class="show-ry" data-bind="text: ry"></span></p>
         <p>Rotate X: <input class="rx" type="range" min="-90" max="90" step="1" data-bind="value: rx" /> <span class="show-rx" data-bind="text: rx"></span></p>
+        <div data-bind="visible: keyframe()">(drag the eyes on the left <br />or adjust its properties above)</div>
       </div>
     </div>
     
@@ -33,6 +35,31 @@
       <div class="frame" data-bind="css: {selected: selected, keyframe: keyframe, tween: !keyframe() && visible()}">
         <img src="" style="height: 3em;" data-bind="click: $parent.selectFrame, attr: {src: url}" />
       </div>
+    </div>
+    
+    <div style="clear: both;"></div>
+    
+    <div class="col-md-6">
+      <h2>Tips & Tricks</h2>
+      <p>
+        Click on a thumbnail on the timeline to select it. Click "add keyframe" or double-click on the editor to add eyes to the image. 
+      </p>
+      <p>
+        In many cases, you don't need to add eyes to every frames. To animate between two frames, first make keyframes at the start and end. Then, select one of the frames in between and click the "tween" or hit the "t" key.
+      </p>
+      <p>
+        Navigation (hotkeys):
+        <ul>
+          <li>h or left: previous frame</li>
+          <li>l or right: next frame</li>
+          <li>j: forward 5 frames</li>
+          <li>k: back 5 frames</li>
+          <li>a: make current frame a keyframe</li>
+          <li>t: animate (tween) between the previous and next keyframes</li>
+          <li>d: delete keyframe / tween</li>
+        </ul>
+        Note that the hotkeys my behave strangely if you have other items selected, such as the sliders.
+      </p>
     </div>
   </div>
   <script>
