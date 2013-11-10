@@ -6,6 +6,10 @@ img {
   border: none;
 }
 
+.editor-block {
+  float: left;
+}
+
 .timeline .frame {
   float: left;
   border: solid 2px #fff;
@@ -31,5 +35,7 @@ img {
   opacity: 0.5;
 }
 
-
+.save-button {
+  float: right;
+}
 

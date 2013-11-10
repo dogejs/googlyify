@@ -1,16 +1,6 @@
-<html>
-<head>
-<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="/js/lodash.min.js"></script>
-<script src="/js/knockout.min.js"></script>
-<script src="/js/keymaster.min.js"></script>
-<script src="/js/box2dweb-rope.js"></script>
-<script src="/js/googly.js"></script>
-<script src="/js/renderer.js"></script>
-<link rel="stylesheet" href="/css/style.css" />
-</head>
-<body>
+<% layout("layout") -%>
 
+<script src="/js/renderer.js"></script>
 <div id="renderer" class="renderer">
   Frames: <%= gif.frames.length %><br />
   <div class="timeline" data-bind="foreach: frames">
@@ -35,6 +25,3 @@ var _id = "<%= _id %>";
 var _key = "<%= _key %>";
 setupGif(<%- JSON.stringify(gif) %>);
 </script>
-
-</body>
-</html>

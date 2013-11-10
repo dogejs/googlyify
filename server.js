@@ -4,6 +4,7 @@ require('nko')('cRqaydoFRmct9opC');
 var fs = require('fs');
 var connect = require('connect');
 var express = require('express');
+var engine = require("ejs-locals");
 var mongoose = require("mongoose");
 var SessionMongoose = require("session-mongoose")(connect);
 
@@ -30,7 +31,9 @@ if (process.getuid() === 0) {
 
 app.configure(function () {
   app.set("views", __dirname + "/views");
+  app.engine("ejs", engine);
   app.set("view engine", "ejs");
+  app.set("view options", {layout: "views/layout.ejs"});
   app.use(express.cookieParser());
   /*
   app.use(express.session({
@@ -48,7 +51,7 @@ app.configure(function () {
   app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 });
 
-app.get('/upload', require('./controllers/upload'));
+app.get('/upload.:format?', require('./controllers/upload'));
 app.get('/edit/:id/:key', require('./controllers/edit'));
 app.post('/save/:id/:key.:format?', require('./controllers/save'));
 app.all('/render/:id/:key.:format?', require('./controllers/render'));

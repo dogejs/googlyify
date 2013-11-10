@@ -9,18 +9,23 @@ module.exports = function (req, res) {
   if (url.toLowerCase().substring(url.length-4) != ".gif") {
     return res.render(500);
   }
-  SourceGif.getOrCreate(url, function (err, src) {
-    if (err) {
-      console.error(err);
-      return res.render(500);
-    }
-    
-    Gif.fromSource(src, function (err, gif) {
+  
+  if (req.params.format == "json") {
+    SourceGif.getOrCreate(url, function (err, src) {
       if (err) {
         console.error(err);
         return res.render(500);
       }
-      res.redirect("/edit/"+gif._id+"/"+gif.key);
+    
+      Gif.fromSource(src, function (err, gif) {
+        if (err) {
+          console.error(err);
+          return res.render(500);
+        }
+        res.send({message: "success", redirect: "/edit/"+gif._id+"/"+gif.key});
+      });
     });
-  });
+  } else {
+    res.render("uploading", {url: url});
+  }
 }
