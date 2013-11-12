@@ -1,3 +1,7 @@
 .env
 cache/
 public/uploads/
+id_deploy
+id_deploy.pub
+deploy
+deploy.conf
