@@ -295,7 +295,7 @@ editor.recalculateTweenFrames = function (frameNumber1, frameNumber2) {
   }
 }
 
-editor.saveClicked = function () {
+function commitChanges (next) {
   var outputFrames = []
   ko.utils.arrayForEach(editor.frames(), function (frame) {
     outputFrames.push({
@@ -313,12 +313,24 @@ editor.saveClicked = function () {
   var gif = {};
   gif.frames = outputFrames;
   $.post("/save/"+_id+"/"+_key+".json", gif, function (data) {
-    console.log(data);
+    if (next) next();
   }, "json");
-  console.log(JSON.stringify(gif));
+}
+
+editor.saveClicked = function () {
+  message = $("#message");
+  message.html("Saving changes...").show();
+  commitChanges(function () {
+    message.html("Saved changes!").show();
+  });
 }
 editor.renderClicked = function () {
-  window.location = "/render/"+_id+"/"+_key;
+  message = $("#message");
+  message.html("Saving changes...").show();
+  commitChanges(function () {
+    message.html("Saved changes!").show();
+    window.location = "/render/"+_id+"/"+_key;
+  });
 }
 
 var Frame = function (f) {
