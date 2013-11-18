@@ -62,6 +62,7 @@ app.all('/render/:id/:key.:format?', require('./controllers/render').endpoint);
 app.get('/renderer/:id/:key.:format?', require('./controllers/renderer'));
 app.get('/top.:format?', require('./controllers/top'));
 app.get('/recent.:format?', require('./controllers/recent'));
+app.get('/most/:sort.:format?', require('./controllers/most'));
 
 app.get('/', function(req, res) { res.render("index"); });
 
