@@ -32,6 +32,15 @@ h1, h2, h3, h4 {
 .container-header a.logo {
   float: left;
 }
+.logo-link {
+  margin-top: 80px;
+  font-size: 0.6em;
+  color: #ECF0F1;
+}
+.logo-link:hover,
+.logo-link:active {
+  color: #fff;
+}
 
 .container-header .caption {
   -x-float: right;
